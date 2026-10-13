@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portafolio de Física I — Avance 1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav aria-label="Índice">
+        <b>Portafolio de Física I</b><small>FUN-18 · 2026-C3 · Avance 1</small>
+        <div style="height:14px"></div>
+        <a href="#t1">Tema 1 — Rastreo y navegación de un dron de reparto</a>
+        <a href="#t2">Tema 2 — El salto del personaje: cómo los motores de juego falsean la gravedad</a>
+        <a href="#t3">Tema 3 — Gravedad artificial por rotación en hábitats espaciales</a>
+        <a href="#t4">Tema 4 — Llantas de Fórmula 1: la ventana de temperatura y el agarre</a>
+        <a href="#t5">Tema 5 — El resorte virtual detrás de un control háptico</a>
+        <a class="soon" href="#proximos">Temas de avances 2 y final</a>
+    </nav>
+    <main>
+        <h1>Física mecánica en el software real</h1>
+        <p>Portafolio de evidencias de <b>Sebastian Cascante Badilla</b> · Universidad CENFOTEC · Docente: Andrés Castro
+            Núñez. Cada tema
+            parte de un caso concreto de ingeniería de software y lo conecta con la ecuación que lo gobierna.</p>
+
+        <!-- ============ TEMA 1 ============ -->
+        <section id="t1">
+            <span class="tag">Visualización de datos · Cinemática en 2D</span>
+            <h2>Tema 1 — Rastreo y navegación de un dron de reparto</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>El controlador de vuelo de código abierto PX4, usado en drones comerciales, genera su trayectoria de
+                misión como consignas de posición, velocidad y aceleración en cada instante; el controlador de velocidad
+                convierte esa aceleración en empuje y actitud del dron. El software representa la ruta con las
+                ecuaciones de la cinemática:</p>
+            <div class="eq">r(t) = (x(t), y(t)) &nbsp;·&nbsp; v = dr/dt = (v<sub>x</sub>, v<sub>y</sub>) &nbsp;·&nbsp; a
+                = dv/dt = (a<sub>x</sub>, a<sub>y</sub>) &nbsp;·&nbsp; |v| = √(v<sub>x</sub>² + v<sub>y</sub>²)</div>
+            <p>Modelar la trayectoria así, en lugar de guardar una lista fija de puntos, permite obtener velocidad y
+                aceleración exactas en cualquier instante. Eso garantiza que el dron nunca reciba una orden de
+                aceleración mayor que la que sus motores pueden dar y que el rastreo del paquete sea suave y predecible.
+                Una ruta precalculada punto a punto no ofrece esa garantía. El costo es que hay que parametrizar la ruta
+                y verificar sus límites físicos.</p>
+            <h3>Ruta declarada y datos</h3>
+            <p>Datos generados por mí a partir de esta ruta declarada, para t entre 0 y 30 s: x(t) = 2t + 0,1t² (m) y
+                y(t) = 15·sen(0,25t) (m). Derivando: v<sub>x</sub> = 2 + 0,2t, v<sub>y</sub> = 3,75·cos(0,25t),
+                a<sub>x</sub> = 0,2 y a<sub>y</sub> = −0,9375·sen(0,25t), todas en unidades SI.</p>
+            <svg id="c1a" viewBox="0 0 640 300" role="img" aria-label="Posición contra tiempo"></svg>
+            <svg id="c1b" viewBox="0 0 640 300" role="img" aria-label="Velocidad contra tiempo"></svg>
+            <svg id="c1c" viewBox="0 0 640 300" role="img" aria-label="Aceleración contra tiempo"></svg>
+            <p class="src">Fuente de datos: calculados por el autor con las ecuaciones de la ruta declarada. Referencia
+                del caso: PX4 Dev Team, «Controller Diagrams», PX4 Guide,
+                https://docs.px4.io/main/en/flight_stack/controller_diagrams.html.</p>
+        </section>
+
+        <!-- ============ TEMA 2 ============ -->
+        <section id="t2">
+            <span class="tag">Simulación interactiva · Caída libre y tiro parabólico</span>
+            <h2>Tema 2 — El salto del personaje: cómo los motores de juego falsean la gravedad</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>Los juegos de plataformas, como la saga Super Mario Bros, y motores como Unity y Godot calculan el salto
+                con las ecuaciones del movimiento con aceleración constante. En vez de fijar 9,81 m/s², los diseñadores
+                parten de valores amigables como la altura y la distancia del salto, y de ahí obtienen los parámetros
+                físicos (enfoque expuesto por Kyle Pittman en la GDC 2016). Con la altura h y el tiempo hasta el punto
+                más alto t<sub>a</sub> las ecuaciones quedan así:</p>
+            <div class="eq">y(t) = v₀t − ½gt² &nbsp;·&nbsp; h = v₀²/(2g) &nbsp;·&nbsp; t<sub>vuelo</sub> = 2v₀/g
+                &nbsp;·&nbsp; g = 2h/t<sub>a</sub>² &nbsp;·&nbsp; v₀ = 2h/t<sub>a</sub></div>
+            <p>Con la gravedad real, un salto de 2 m en escala humana dura unos 1,3 s en el aire, lo que se sentiría
+                lento y flotante. Al modelar la física con parámetros ajustables, el equipo cambia la sensación de
+                control con dos números, sin animar cada salto a mano. La alternativa de una animación guionizada no
+                reacciona a obstáculos ni a saltos de distinta fuerza. Lo que se sacrifica es el realismo.</p>
+            <h3>Simulación</h3>
+            <p>Mueve los controles: la trayectoria se recalcula con las ecuaciones de arriba. La velocidad horizontal es
+                fija, de 5 m/s.</p>
+            <label for="v0">Impulso de salto v₀: <b id="v0o">9</b> m/s</label>
+            <input id="v0" type="range" min="2" max="20" step="0.5" value="9">
+            <label for="gg">Gravedad g: <b id="ggo">20</b> m/s²</label>
+            <input id="gg" type="range" min="2" max="40" step="0.5" value="20">
+            <canvas id="cv" width="640" height="260" aria-label="Trayectoria del salto"></canvas>
+            <div class="out" id="so"></div>
+            <p class="src">Referencia: Pittman, K. (Minor Key Games), «Math for Game Programmers: Building a Better
+                Jump», GDC 2016, https://gdcvault.com/play/1023148/Math-for-Game-Programmers-Building. Ecuaciones:
+                Serway &amp; Jewett, <i>Física para ciencias e ingeniería</i>, cap. de movimiento en dos dimensiones.
+            </p>
+        </section>
+
+        <!-- ============ TEMA 3 ============ -->
+        <section id="t3">
+            <span class="tag">Diagrama · Movimiento circular uniforme</span>
+            <h2>Tema 3 — Gravedad artificial por rotación en hábitats espaciales</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>El estudio de diseño de asentamientos espaciales de la NASA (Stanford Torus, 1975-77) propuso un anillo
+                de entre 1,6 y 1,8 km de diámetro según la fuente consultada, que gira una vez por minuto (1 rpm) para
+                dar gravedad terrestre en el borde exterior. Las herramientas de simulación y diseño de ese tipo de
+                hábitats resuelven el mismo cálculo: dada una gravedad aparente objetivo, obtienen el radio y la
+                velocidad de giro compatibles.</p>
+            <div class="eq">a<sub>c</sub> = v²/r = ω²r &nbsp;·&nbsp; ω = 2π/T = 2πf &nbsp;·&nbsp; v = ωr &nbsp;·&nbsp;
+                para 1 g: ω = √(g/r)</div>
+            <p>Modelar la física permite probar cualquier radio o giro y ver de inmediato si la gravedad aparente y el
+                mareo por velocidad angular alta son aceptables. Una tabla fija de configuraciones solo cubriría los
+                casos precalculados. Lo que cuesta es incluir efectos adicionales, como la fuerza de Coriolis, para
+                validar el diseño.</p>
+            <h3>Esquema</h3>
+            <img src="Diagrama.png" alt="Esquema del hábitat giratorio: a_c hacia el centro, v tangente, ω y radio r"
+                style="width: 100%;">
+            <h3>Caso numérico: ¿qué radio y qué rpm dan 1 g?</h3>
+            <p>Elijo r = 250 m y exijo a<sub>c</sub> = g = 9,81 m/s².</p>
+            <div class="eq">ω = √(g/r) = √(9,81/250) = 0,198 rad/s<br>T = 2π/ω = 31,7 s &nbsp;·&nbsp; f = 0,0315
+                Hz<br>rpm = 0,198 · 60/(2π) ≈ 1,89 rpm &nbsp;·&nbsp; v = ωr ≈ 49,5 m/s</div>
+            <p>Con un radio mayor, por ejemplo 900 m, de un orden similar al del Stanford Torus, ω = √(9,81/900) = 0,104
+                rad/s ≈ 1,0 rpm. A mayor radio se necesita menos giro para el mismo 1 g, que es la razón de que los
+                diseños grandes sean más cómodos.</p>
+            <p class="src">Fuente: Johnson, R. &amp; Holbrow, C. (eds.), <i>Space Settlements: A Design Study</i>, NASA
+                SP-413, 1977. Esquema elaborado por el autor.</p>
+        </section>
+
+        <!-- ============ TEMA 4 ============ -->
+        <section id="t4">
+            <span class="tag">Visualización de datos · Fricción</span>
+            <h2>Tema 4 — Llantas de Fórmula 1: la ventana de temperatura y el agarre</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>Los simuladores de carreras, como la serie F1 de EA Sports/Codemasters, y las herramientas de simulación
+                de vuelta de los equipos modelan la llanta con su temperatura y su carga. El modelo básico de fricción
+                es:</p>
+            <p>La fricción estática cumple F<sub>s</sub> ≤ μ<sub>s</sub>N y la cinética F<sub>k</sub> = μ<sub>k</sub>N,
+                donde N es la fuerza normal. Para una llanta que no desliza, el límite relevante es el estático:</p>
+            <div class="eq">F<sub>f</sub> ≤ μN &nbsp;·&nbsp; F<sub>lat,máx</sub> = μ(T, F<sub>z</sub>) · F<sub>z</sub>
+            </div>
+            <p>Con un μ fijo, la fuerza lateral máxima crecería linealmente con la carga vertical F<sub>z</sub>. La goma
+                real tiene sensibilidad a la carga: μ baja cuando F<sub>z</sub> sube, y además solo rinde bien dentro de
+                una ventana de temperatura. Modelar μ(T, F<sub>z</sub>) es lo que hace que el software reproduzca por
+                qué una llanta fría o sobrecalentada pierde agarre, algo que un coeficiente constante no puede mostrar.
+                El costo es tener que calibrar el modelo con datos reales de cada compuesto.</p>
+            <h3>Fuerza lateral máxima contra carga vertical</h3>
+            <p>Gráfica calculada con parámetros ilustrativos declarados: modelo simple F = μ₀F<sub>z</sub> con μ₀ = 2,0,
+                y modelo con sensibilidad a la carga F = F<sub>z</sub>(μ₀ − kF<sub>z</sub>) con k = 6×10⁻⁵ N⁻¹.</p>
+            <svg id="c4" viewBox="0 0 640 300" role="img" aria-label="Fuerza lateral contra carga vertical"></svg>
+            <p class="src">Fuente: el efecto de sensibilidad a la carga (μ baja al aumentar F<sub>z</sub>) se trata en
+                Pacejka, H. B., <i>Tire and Vehicle Dynamics</i>, 3.ª ed., Butterworth-Heinemann, 2012. La forma
+                cuadrática de la gráfica es una simplificación del autor. Los valores μ₀ y k son ilustrativos y fueron
+                elegidos por el autor, no son datos de un compuesto Pirelli real.</p>
+        </section>
+
+        <!-- ============ TEMA 5 ============ -->
+        <section id="t5">
+            <span class="tag">Multimedia con análisis · Ley de Hooke y tercera ley de Newton</span>
+            <h2>Tema 5 — El resorte virtual detrás de un control háptico</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>Los gatillos adaptativos del control DualSense de PlayStation 5 usan un motor que empuja contra el dedo.
+                El software del juego define una curva de fuerza contra recorrido y el firmware la reproduce como si el
+                gatillo tuviera un resorte:</p>
+            <div class="eq">F = −kx &nbsp;·&nbsp; F<sub>dedo→gatillo</sub> = −F<sub>gatillo→dedo</sub> (tercera ley de
+                Newton)</div>
+            <p>Programar una ley de fuerza permite simular un arco que se tensa, un freno que se endurece o una arma que
+                se atasca, y cambiar la dureza por código. Un sonido o una vibración pregrabados no responden a cuánto
+                presiona el jugador. Lo que se sacrifica es la simplicidad: el motor solo imita la fuerza, y el juego
+                debe actualizarla a tiempo.</p>
+            <h3>Curva de fuerza contra desplazamiento</h3>
+            <p>Curva ilustrativa con k = 0,8 N/mm y fuerza máxima de 6 N, que ocurre al llegar a la pared virtual.</p>
+            <svg id="c5" viewBox="0 0 640 300" role="img" aria-label="Fuerza contra desplazamiento"></svg>
+            <h3>Video</h3>
+            <div id="vid">
+                <iframe src="https://www.youtube.com/embed/CaPHUZapCTI"
+                    title="DualSense: háptica y gatillos adaptativos" allowfullscreen></iframe>
+            </div>
+            <h3>Análisis del video</h3>
+            <div class="analisis">
+                <p>El video explica cómo funcionan los gatillos adaptativos del control DualSense. Entre los minutos
+                    3:24 y 3:39, el entrevistado de Sony describe que se trata de motores que empujan de vuelta contra
+                    el gatillo, y que la forma en que empujan la controla el juego. Esa es la fuerza restauradora: el
+                    control no tiene ningún resorte real, el motor la produce por software.</p>
+
+                <p>El momento concreto donde se percibe esa fuerza es el del arco, entre 4:18 y 4:34. Como el gatillo
+                    tiene un recorrido largo, el equipo lo dividió en varios niveles, de modo que cada vez que el
+                    jugador lo aprieta un poco más, la resistencia es mayor. Según el video, la tensión se siente cada
+                    vez más fuerte a lo largo del recorrido, igual que al tensar un arco real.</p>
+
+                <p>Ese comportamiento corresponde a la ley de Hooke, F = −kx: la fuerza restauradora crece en proporción
+                    al desplazamiento x del gatillo. En la curva de esta página, con una constante ilustrativa de k =
+                    0,8 N/mm, a x = 5 mm la fuerza es F = 0,8 × 5 = 4 N, y llega a su tope de 6 N a los 7,5 mm. Esos
+                    valores son un ejemplo mío y no datos de Sony; lo que sí confirma el video es la forma de la curva,
+                    que sube a medida que el jugador aprieta. La diferencia es que el video habla de niveles, así que la
+                    fuerza real sube por escalones y la línea recta es la versión idealizada de esos escalones.</p>
+
+                <p>Por la tercera ley de Newton, el dedo empuja el gatillo y el gatillo empuja el dedo con una fuerza de
+                    igual magnitud y sentido contrario. Esa reacción, producida por el motor, es lo que el jugador
+                    siente como "tensión", aunque no haya nada que tensar. Por eso el recurso es una simulación: el
+                    software define la curva de fuerza contra desplazamiento y el motor la reproduce.</p>
+            </div>
+            <p class="src">Referencias: Sony Interactive Entertainment, documentación del control DualSense. Video:
+                <b>PlayStation Access (canal de YouTube) A Game Developer Explains How PS5's DualSense Actually Works,
+                    YouTube. Agosto, 2021, https://www.youtube.com/watch?v=CaPHUZapCTI</b>. Curva elaborada por el
+                autor.
+            </p>
+        </section>
+
+        <section id="proximos">
+            <h2>Temas de los siguientes avances</h2>
+            <p><b>Avance 2:</b> frenado regenerativo en un vehículo eléctrico · coeficiente de restitución en un motor
+                de videojuego · ruedas de reacción en satélites · asistencia gravitatoria de la Voyager.<br>
+                <b>Entrega final:</b> spring animations en interfaces · síntesis de sonido y armónicos · resonancia
+                estructural y Tacoma Narrows · enfriamiento líquido de un centro de datos.
+            </p>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
