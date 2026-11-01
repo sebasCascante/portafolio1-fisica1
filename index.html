@@ -4,20 +4,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Portafolio de Física I — Avance 1</title>
+    <title>Portafolio de Física I — Avance 2</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <nav aria-label="Índice">
-        <b>Portafolio de Física I</b><small>FUN-18 · 2026-C3 · Avance 1</small>
+        <b>Portafolio de Física I</b><small>FUN-18 · 2026-C3 · Avance 2</small>
         <div style="height:14px"></div>
         <a href="#t1">Tema 1 — Rastreo y navegación de un dron de reparto</a>
         <a href="#t2">Tema 2 — El salto del personaje: cómo los motores de juego falsean la gravedad</a>
         <a href="#t3">Tema 3 — Gravedad artificial por rotación en hábitats espaciales</a>
         <a href="#t4">Tema 4 — Llantas de Fórmula 1: la ventana de temperatura y el agarre</a>
         <a href="#t5">Tema 5 — El resorte virtual detrás de un control háptico</a>
-        <a class="soon" href="#proximos">Temas de avances 2 y final</a>
+        <a href="#t6">Tema 6 — Frenado regenerativo en un vehículo eléctrico</a>
+        <a href="#t7">Tema 7 — El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</a>
+        <a href="#t8">Tema 8 — Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada</a>
+        <a href="#t9">Tema 9 — Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible</a>
+        <a class="soon" href="#proximos">Temas de la entrega final</a>
     </nav>
     <main>
         <h1>Física mecánica en el software real</h1>
@@ -101,7 +105,7 @@
                 casos precalculados. Lo que cuesta es incluir efectos adicionales, como la fuerza de Coriolis, para
                 validar el diseño.</p>
             <h3>Esquema</h3>
-            <img src="Diagrama.png" alt="Esquema del hábitat giratorio: a_c hacia el centro, v tangente, ω y radio r"
+            <img src="Diagrama_tema_3.png" alt="Esquema del hábitat giratorio: a_c hacia el centro, v tangente, ω y radio r"
                 style="width: 100%;">
             <h3>Caso numérico: ¿qué radio y qué rpm dan 1 g?</h3>
             <p>Elijo r = 250 m y exijo a<sub>c</sub> = g = 9,81 m/s².</p>
@@ -194,11 +198,143 @@
             </p>
         </section>
 
+        <section id="t6">
+            <span class="tag">Visualización de datos · Trabajo y energía</span>
+            <h2>Tema 6 — Frenado regenerativo en un vehículo eléctrico</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>El sistema de mezcla de frenado (<i>brake blending</i>) de los vehículos eléctricos decide en cada
+                instante cuánta desaceleración la hace el motor como generador y cuánta los frenos de fricción. Su
+                cálculo parte del teorema trabajo–energía:</p>
+            <div class="eq">E<sub>k</sub> = ½mv² &nbsp;·&nbsp; W<sub>neto</sub> = ΔE<sub>k</sub> &nbsp;·&nbsp;
+                E<sub>rec</sub> = η|ΔE<sub>k</sub>| &nbsp;·&nbsp; E<sub>dis</sub> = (1 − η)|ΔE<sub>k</sub>|</div>
+            <p>Un valor fijo de frenado, igual para toda situación, no sabe cuánta energía puede aceptar la batería ni
+                cuánta potencia entrega el motor a cada velocidad. Modelar la energía permite repartir el frenado entre
+                generador y fricción y medir cuánto se recupera. Lo que cuesta es que η no es constante: cambia con la
+                velocidad, la temperatura y el estado de carga de la batería.</p>
+            <h3>Balance de energía en un ciclo</h3>
+            <p>Datos calculados por mí con un ciclo declarado: 0 a 50 km/h en 10 s, 20 s a velocidad constante, frenado
+                uniforme a 0 en 10 s y 10 s detenido, repetido dos veces. Parámetros: m = 1800 kg y η = 0,7 (valor
+                ilustrativo, sin resistencia del aire ni rodadura). En cada frenado E<sub>k</sub> = 173,6 kJ (0,048
+                kWh): se recuperan 121,5 kJ y se disipan 52,1 kJ.</p>
+            <svg id="c6" viewBox="0 0 640 300" role="img" aria-label="Balance de energía en el frenado"></svg>
+            <p class="src">Fuente de datos: calculados por el autor con las ecuaciones de arriba. Contexto real: según
+                el Departamento de Energía de EE. UU., el frenado regenerativo neto recupera cerca de 22 % de la energía
+                en el ciclo combinado ciudad/carretera de la EPA (DOE, Vehicle Technologies Office, «Fact of the Week
+                #1360», 16-sep-2024; y fueleconomy.gov, «Where the Energy Goes: Electric Cars»).</p>
+        </section>
+
+        <section id="t7">
+            <span class="tag">Simulación interactiva · Colisiones y momento lineal</span>
+            <h2>Tema 7 — El coeficiente de restitución en un motor de videojuego: por qué la pelota rebota mal</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>Box2D, Unity (la propiedad <i>Bounciness</i> del Physic Material) y Godot (<i>bounce</i>) incluyen el
+                coeficiente de restitución e como parámetro de cada material. El motor resuelve cada choque con la
+                conservación del momento y con e:</p>
+            <div class="eq">m₁v₁ + m₂v₂ = m₁v₁′ + m₂v₂′ &nbsp;·&nbsp; e = −(v₂′ − v₁′)/(v₂ − v₁) &nbsp;·&nbsp; contra el
+                suelo: e = v′/v, h′ = e²h &nbsp;·&nbsp; ΔE<sub>k</sub> = ½mv²(1 − e²)</div>
+            <p>Con una altura de rebote guionizada, la pelota no reaccionaría a otra masa, otra velocidad o otro
+                material. Con e, cualquier choque produce un resultado coherente. El costo: con e cercano a 1 los
+                errores numéricos pueden hacer que la pelota rebote para siempre o gane energía, por eso los motores
+                añaden umbrales de velocidad para detenerla.</p>
+            <h3>Simulación</h3>
+            <label for="re">Coeficiente de restitución e: <b id="reo">0,75</b></label>
+            <input id="re" type="range" min="0" max="1" step="0.01" value="0.75">
+            <label for="rh">Altura inicial: <b id="rho">2</b> m</label>
+            <input id="rh" type="range" min="0.5" max="4" step="0.1" value="2">
+            <canvas id="cv7" width="640" height="300" aria-label="Pelota rebotando"></canvas>
+            <div class="out" id="o7"></div>
+            <p class="src">La pelota de la derecha es una referencia ilustrativa con e = 0,75. Ecuaciones: Serway &amp;
+                Jewett, <i>Física para ciencias e ingeniería</i>, cap. de momento lineal y colisiones.</p>
+        </section>
+
+        <section id="t8">
+            <span class="tag">Diagrama · Momento angular y torque</span>
+            <h2>Tema 8 — Ruedas de reacción: cómo un satélite se gira sin empujarse contra nada</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>El software de control de actitud de satélites y telescopios como el Hubble manda torques a ruedas de
+                reacción para apuntar sin gastar combustible. Sin torques externos, el momento angular total se
+                conserva:</p>
+            <div class="eq">L = I<sub>s</sub>ω<sub>s</sub> + I<sub>w</sub>ω<sub>w</sub> = constante &nbsp;·&nbsp;
+                ω<sub>s</sub> = −(I<sub>w</sub>/I<sub>s</sub>)ω<sub>w</sub> &nbsp;·&nbsp; τ = I<sub>w</sub>α<sub>w</sub>
+                (reacción −τ sobre el satélite)</div>
+            <p>Un controlador basado en esta física apunta con precisión fina y sin propelente, que es finito; una
+                secuencia fija de encendidos de propulsores gastaría combustible en cada giro. Lo que cuesta es la
+                saturación: la misión Kepler perdió dos ruedas de reacción y no pudo seguir apuntando como antes.</p>
+            <h3>Esquema</h3>
+            <img src="Diagrama_tema_8.png" alt="Satélite con rueda de reacción: ω_w y ω_s opuestos, ecuaciones y saturación">
+            <h3>Qué pasa cuando la rueda llega a su velocidad máxima</h3>
+            <div class="eq">I<sub>w</sub> = 0,05 kg·m² · I<sub>s</sub> = 100 kg·m² · ω<sub>máx</sub> = 3000 rpm = 314,2
+                rad/s<br>L<sub>máx</sub> = I<sub>w</sub>ω<sub>máx</sub> = 15,7 kg·m²/s &nbsp;→&nbsp; ω<sub>s</sub> =
+                15,7/100 = 0,157 rad/s ≈ 9,0 °/s<br>Con α<sub>w</sub> = 10 rad/s²: τ = 0,5 N·m, y la rueda se satura a
+                los 31,4 s, con el satélite ya girado unos 141°</div>
+            <p>Al saturarse, la rueda ya no puede absorber más momento angular y el control pierde esa capacidad. Se
+                «descarga» con un torque externo (magnetorques contra el campo terrestre o propulsores) que vuelve a
+                bajar su velocidad.</p>
+        </section>
+
+        <section id="t9">
+            <span class="tag">Visualización de datos · Gravitación universal</span>
+            <h2>Tema 9 — Asistencia gravitatoria: cómo la Voyager ganó velocidad sin gastar combustible</h2>
+            <h3>Caso de uso en ingeniería del software</h3>
+            <p>El diseño de trayectorias de la Voyager 2 (JPL/NASA) y las herramientas actuales, como GMAT de la NASA,
+                modelan la gravedad de los planetas para elegir fecha y distancia de cada sobrevuelo. En el marco del
+                planeta la rapidez de entrada y de salida es la misma; en el marco del Sol se suma la velocidad del
+                planeta:</p>
+            <div class="eq">|v<sub>∞,sal</sub>| = |v<sub>∞,ent</sub>| &nbsp;·&nbsp; v<sub>sal</sub> =
+                u<sub>planeta</sub> + v<sub>∞,sal</sub> &nbsp;·&nbsp; Δv ≤ 2v<sub>∞</sub> &nbsp;·&nbsp; ½v² − GM/r =
+                constante entre encuentros</div>
+            <p>Una tabla fija de maniobras no permitiría buscar la combinación de fechas y distancias que une los cuatro
+                planetas. Al modelar la gravitación el software calcula cuánto cambia la rapidez en cada encuentro sin
+                propelente. Lo que cuesta es la precisión: un error pequeño de llegada cambia por completo la
+                trayectoria siguiente.</p>
+            <h3>Rapidez respecto al Sol</h3>
+            <table>
+                <tr>
+                    <th>Encuentro</th>
+                    <th>Fecha</th>
+                    <th>Rapidez antes → después (datos JPL)</th>
+                    <th>Cambio según American Scientist</th>
+                </tr>
+                <tr>
+                    <td>Júpiter</td>
+                    <td>9-jul-1979</td>
+                    <td>10,0 → 22,8 km/s (+12,8)</td>
+                    <td>≈ +10 km/s</td>
+                </tr>
+                <tr>
+                    <td>Saturno</td>
+                    <td>25-ago-1981</td>
+                    <td>15,9 → 20,9 km/s (+5,1)</td>
+                    <td>≈ +4 km/s</td>
+                </tr>
+                <tr>
+                    <td>Urano</td>
+                    <td>24-ene-1986</td>
+                    <td>17,9 → 19,8 km/s (+1,9)</td>
+                    <td>≈ +2 km/s</td>
+                </tr>
+                <tr>
+                    <td>Neptuno</td>
+                    <td>25-ago-1989</td>
+                    <td>18,9 → 16,8 km/s (−2,1)</td>
+                    <td>≈ −3 km/s</td>
+                </tr>
+            </table>
+            <p>La gráfica muestra cómo la rapidez baja mientras la sonda se aleja del Sol (por la conservación de ½v² −
+                GM/r) y sube en saltos bruscos en cada encuentro. Las diferencias de la tabla vienen de que los datos de
+                JPL están muestreados cada 10 días y de que su trayectoria hasta 1989 es una de diseño de misión,
+                aproximada. Desde 1989 la trayectoria usa un ajuste de 2022 con datos de seguimiento reales.</p>
+            <svg id="c9" viewBox="0 0 640 300" role="img" aria-label="Rapidez de la Voyager 2 respecto al Sol"></svg>
+            <p class="src">Cambios de rapidez: American Scientist, «The Voyagers' Odyssey»
+                (americanscientist.org/node/3686). Datos de la gráfica: JPL Horizons System (NASA/JPL), vectores de
+                estado de la Voyager 2 (−32) respecto al centro del Sol, marco eclíptico J2000, del 1-sep-1977 al
+                30-oct-2026 con paso de 10 días; trayectoria de diseño aproximada hasta 1989 y ajuste de 2022 (R.
+                Jacobson) desde entonces; rapidez = √(v<sub>x</sub>² + v<sub>y</sub>² + v<sub>z</sub>²).</p>
+        </section>
+
         <section id="proximos">
-            <h2>Temas de los siguientes avances</h2>
-            <p><b>Avance 2:</b> frenado regenerativo en un vehículo eléctrico · coeficiente de restitución en un motor
-                de videojuego · ruedas de reacción en satélites · asistencia gravitatoria de la Voyager.<br>
-                <b>Entrega final:</b> spring animations en interfaces · síntesis de sonido y armónicos · resonancia
+            <h2>Temas de la entrega final</h2>
+            <p><b>Entrega final:</b> spring animations en interfaces · síntesis de sonido y armónicos · resonancia
                 estructural y Tacoma Narrows · enfriamiento líquido de un centro de datos.
             </p>
         </section>

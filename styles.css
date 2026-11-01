@@ -193,3 +193,28 @@ iframe {
     padding: 2px 0 2px 16px;
     margin: 10px 0
 }
+
+table {
+    border-collapse: collapse;
+    font: 15px system-ui, sans-serif;
+    margin: 10px 0;
+    width: 100%
+}
+
+th,
+td {
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    text-align: left
+}
+
+th {
+    background: #eef4f7
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0
+}
